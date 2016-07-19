@@ -4,6 +4,7 @@
 class AStarNode{
 private:
 	AStarNode* parent; //Discovere of this node
+	int id; //Identifier in char map
 	int x; //x position in map
 	int y; //y position in map
 	int f; //Combined cost
@@ -13,6 +14,8 @@ private:
 
 public:
 	AStarNode(const int x, const int y);
+	void setID(int id);
+	int getID() const;
 	int getxPos() const;
 	int getyPos() const;
 	void setxPos(int x);
@@ -27,7 +30,6 @@ public:
 
 	AStarNode* getParent();
 	void setParent(AStarNode* parent);
-	virtual ~AStarNode();
 };
 
 #endif

@@ -8,6 +8,8 @@ AStarNode::AStarNode(const int x, const int y){
 	this->y = y;
 }
 
+int AStarNode::getID() const { return id; }
+void AStarNode::setID(int id){ this->id = id; }
 int AStarNode::getxPos() const { return x; }
 void AStarNode::setxPos(int x){ this->x = x; }
 int AStarNode::getyPos() const { return y; }
@@ -21,12 +23,5 @@ void AStarNode::setgValue(int g) { this->g = g; }
 void AStarNode::sethValue(int h) { this->h = h; }
 AStarNode* AStarNode::getParent() { return parent; }
 void AStarNode::setParent(AStarNode* parent) { this->parent = parent; }
-
-
-AStarNode::~AStarNode()
-{
-	cout << "Destroyed : (" << x << "," << y << ")" << endl;
-}
-
 
 
