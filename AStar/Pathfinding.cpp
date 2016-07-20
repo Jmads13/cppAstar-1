@@ -89,11 +89,11 @@ int FindPath(const int nStartX, const int nStartY,
 	unordered_set<pair<int, int>, SimpleHash> uniq;
 	vector<vector<int>>  map(nMapWidth, vector<int>(nMapHeight));
 
-	//initial node
+	//Initial node
 	minPQ.push(nStart);
 	uniq.insert(make_pair(nStartX, nStartY));
 
-	//assign map values
+	//Assign map values
 	int counter = 0;
 	for (int y = 0; y<nMapHeight; y++){
 		for (int x = 0; x<nMapWidth; x++){
@@ -103,23 +103,23 @@ int FindPath(const int nStartX, const int nStartY,
 
 	while (!minPQ.empty())
 	{
-		current = minPQ.top();//Current node for evaluation
+		current = minPQ.top(); //Current node for evaluation
 
 		if (current->getxPos() == nTargetX && current->getyPos() == nTargetY){
 			currentBufferSize = current->getgValue();
 			pOutBuffer = new int[currentBufferSize];
 			fillBuffer(current, pOutBuffer);
 			minPQ.swap(priority_queue<AStarNode*, vector<AStarNode*>, CompareAStarNode>());
-		}else{ //generate succescors
-			if (current->getgValue() + 1 <= nOutBufferSize){ //Buffer limit check
+		}else{ //Succescors
+			if (current->getgValue() + 1 <= nOutBufferSize){ //Buffer
 				int xChild;
 				int yChild;
 				for (int i = 0; i < directions; i++){
 					xChild = dirX[i] + current->getxPos();
 					yChild = dirY[i] + current->getyPos();
-					if (!(xChild < 0) && xChild < nMapWidth && !(yChild < 0) && yChild < nMapHeight){ //Within bounds check
-						if (uniq.insert(make_pair(xChild, yChild)).second){ //Unique check
-							if (map[xChild][yChild] != 0){ //Unblocked check
+					if (!(xChild < 0) && xChild < nMapWidth && !(yChild < 0) && yChild < nMapHeight){ //Bounds
+						if (uniq.insert(make_pair(xChild, yChild)).second){ //Unique
+							if (map[xChild][yChild] != 0){ //Unblocked
 								child = new AStarNode(xChild, yChild);
 								child->setID(calculateID(xChild, yChild, nMapWidth));
 								child->setgValue(current->getgValue() + current->getCost());
@@ -130,9 +130,11 @@ int FindPath(const int nStartX, const int nStartY,
 							}
 						}
 					}
-				}
+				}//Succescors
+				minPQ.pop();
+			}else{//Buffer
+				minPQ.swap(priority_queue<AStarNode*, vector<AStarNode*>, CompareAStarNode>());
 			}
-			minPQ.pop();
 		}
 	}
 	uniq.clear();
