@@ -11,7 +11,7 @@ AStarNode* current;
 AStarNode* child;
 
 int currentBufferSize;
-const int directions = 4;
+static const int directions = 4;
 static int dirX[directions] = { 1, 0, -1, 0 };
 static int dirY[directions] = { 0, 1, 0, -1 };
 
@@ -45,12 +45,8 @@ int manhattenDistance(AStarNode* start, AStarNode* target){
 * '1 dimensional' ID
 */
 int calculateID(int x, int y, int mapWidth){
-	if (y != 0) {
-		return (x + (y * mapWidth));
-	}
-	else {
-		return (x + y);
-	}
+	if (y != 0) return (x + (y * mapWidth));
+	return (x + y);
 }
 
 /*
@@ -73,7 +69,7 @@ int FindPath(const int nStartX, const int nStartY,
 	const unsigned char* pMap, const int nMapWidth, const int nMapHeight,
 	int* pOutBuffer, const int nOutBufferSize){
 
-	currentBufferSize = 0;
+	currentBufferSize = -1;
 	nStart = new AStarNode(nStartX, nStartY);
 	nTarget = new AStarNode(nTargetX, nTargetY);
 	nStart->setgValue(0);
@@ -113,19 +109,17 @@ int FindPath(const int nStartX, const int nStartY,
 			currentBufferSize = current->getgValue();
 			pOutBuffer = new int[currentBufferSize];
 			fillBuffer(current, pOutBuffer);
-			return currentBufferSize;
-		}else{
-			//generate succescor
-			int xChild;
-			int yChild;
-			for (int i = 0; i < directions; i++)
-			{
-				if (current->getgValue() + 1 <= nOutBufferSize){ //Buffer limit check
+			minPQ.swap(priority_queue<AStarNode*, vector<AStarNode*>, CompareAStarNode>());
+		}else{ //generate succescors
+			if (current->getgValue() + 1 <= nOutBufferSize){ //Buffer limit check
+				int xChild;
+				int yChild;
+				for (int i = 0; i < directions; i++){
 					xChild = dirX[i] + current->getxPos();
 					yChild = dirY[i] + current->getyPos();
 					if (!(xChild < 0) && xChild < nMapWidth && !(yChild < 0) && yChild < nMapHeight){ //Within bounds check
 						if (uniq.insert(make_pair(xChild, yChild)).second){ //Unique check
-							if (map[xChild][yChild] != 0){ //blocked check
+							if (map[xChild][yChild] != 0){ //Unblocked check
 								child = new AStarNode(xChild, yChild);
 								child->setID(calculateID(xChild, yChild, nMapWidth));
 								child->setgValue(current->getgValue() + current->getCost());
@@ -141,13 +135,16 @@ int FindPath(const int nStartX, const int nStartY,
 			minPQ.pop();
 		}
 	}
-	minPQ.swap(priority_queue<AStarNode*, vector<AStarNode*>, CompareAStarNode>());
 	uniq.clear();
 	map.clear();
 	delete child;
 	delete nTarget;
 	delete nStart;
-	return -1;
+	//cout << "Buffer contains: " << endl;
+	//for (int i = 0; i < currentBufferSize; i++){
+	//	cout << pOutBuffer[i] << endl;
+	//}
+	return currentBufferSize;
 };
 
 
@@ -155,27 +152,13 @@ int FindPath(const int nStartX, const int nStartY,
 
 int main(int argc, char **argv)
 {
-	unsigned char pMap[] = { 1, 1, 1, 1,
-							0, 1, 0, 1,
-							0, 1, 1, 1 };
+	unsigned char pMap[] = { 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1 };
 	int pOutBuffer[12];
-	cout << FindPath(0, 0, 1, 2, pMap, 4, 3, pOutBuffer, 12) << endl;
+	cout << "Pathsize for first input: " <<  FindPath(0, 0, 1, 2, pMap, 4, 3, pOutBuffer, 12) << endl;
 
-	unsigned char pMab[] = { 0, 0, 1,
-							0, 1, 1,
-							1, 0, 1 };
+	unsigned char pMab[] = { 0, 0, 1, 0, 1, 1, 1, 0, 1 };
 	int pOutBuffer2[7];
-	cout << FindPath(2, 0, 0, 2, pMab, 3, 3, pOutBuffer2, 7) << endl;
-
-	unsigned char pMap3[]={ 1, 0, 1, 1, 1, 1, 1, 1, 1, 1,
-							1, 0, 1, 0, 0, 0, 0, 0, 1, 1,
-							1, 0, 1, 1, 1, 1, 1, 0, 1, 1,
-							1, 0, 0, 0, 0, 0, 1, 0, 1, 1,
-							1, 1, 1, 1, 1, 1, 1, 0, 1, 1 };
-	int pOutBuffer3[100];
-
-	cout << FindPath(0, 0, 9, 3, pMap3, 10, 5, pOutBuffer3, 100) << endl;
-
+	cout << "Pathsize for second input: " << FindPath(2, 0, 0, 2, pMab, 3, 3, pOutBuffer2, 7) << endl;
 
 	cin.get();
 };
