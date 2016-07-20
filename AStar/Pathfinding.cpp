@@ -113,39 +113,33 @@ int FindPath(const int nStartX, const int nStartY,
 			currentBufferSize = current->getgValue();
 			pOutBuffer = new int[currentBufferSize];
 			fillBuffer(current, pOutBuffer);
-			minPQ.swap(priority_queue<AStarNode*, vector<AStarNode*>, CompareAStarNode>());
-			uniq.clear();
-			map.clear();
-			delete child;
-			delete nTarget;
-			delete nStart;
 			return currentBufferSize;
-		}
-
-		//generate succescor
-		int xChild;
-		int yChild;
-		for (int i = 0; i < directions; i++)
-		{
-			if (current->getgValue() + 1 <= nOutBufferSize){ //Buffer limit check
-				xChild = dirX[i] + current->getxPos();
-				yChild = dirY[i] + current->getyPos();
-				if (!(xChild < 0) && xChild < nMapWidth && !(yChild < 0) && yChild < nMapHeight){ //Within bounds check
-					if (uniq.insert(make_pair(xChild, yChild)).second){ //Unique check
-						if (map[xChild][yChild] != 0){ //blocked check
-							child = new AStarNode(xChild, yChild);
-							child->setID(calculateID(xChild, yChild, nMapWidth));
-							child->setgValue(current->getgValue() + current->getCost());
-							child->sethValue(manhattenDistance(child, nTarget));
-							child->setfValue(child->getgValue() + child->gethValue());
-							child->setParent(current);
-							minPQ.push(child);
+		}else{
+			//generate succescor
+			int xChild;
+			int yChild;
+			for (int i = 0; i < directions; i++)
+			{
+				if (current->getgValue() + 1 <= nOutBufferSize){ //Buffer limit check
+					xChild = dirX[i] + current->getxPos();
+					yChild = dirY[i] + current->getyPos();
+					if (!(xChild < 0) && xChild < nMapWidth && !(yChild < 0) && yChild < nMapHeight){ //Within bounds check
+						if (uniq.insert(make_pair(xChild, yChild)).second){ //Unique check
+							if (map[xChild][yChild] != 0){ //blocked check
+								child = new AStarNode(xChild, yChild);
+								child->setID(calculateID(xChild, yChild, nMapWidth));
+								child->setgValue(current->getgValue() + current->getCost());
+								child->sethValue(manhattenDistance(child, nTarget));
+								child->setfValue(child->getgValue() + child->gethValue());
+								child->setParent(current);
+								minPQ.push(child);
+							}
 						}
 					}
 				}
 			}
+			minPQ.pop();
 		}
-		minPQ.pop();
 	}
 	minPQ.swap(priority_queue<AStarNode*, vector<AStarNode*>, CompareAStarNode>());
 	uniq.clear();
