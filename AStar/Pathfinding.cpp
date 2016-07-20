@@ -59,7 +59,7 @@ int calculateID(int x, int y, int mapWidth){
 void fillBuffer(AStarNode* asn, int* buffer){
 	if (asn != NULL){
 		if (asn != nStart){
-			buffer[asn->getgValue() - 1] = asn->getID(); //Possible due to cost always = 1
+			buffer[asn->getgValue() - 1] = asn->getID();
 		}
 		fillBuffer(asn->getParent(), buffer);
 	}
@@ -84,18 +84,18 @@ int FindPath(const int nStartX, const int nStartY,
 	/*
 	* Collections
 	*
-	* minPQ			: Minimum Priority Queue for sorting fvalues
-	* uniqueOpen	: unique Set maintained to ensure uniqueness in PQ
-	* map			: 2D Map with 'blocked' values from pMap
+	* minPQ	: Minimum Priority Queue for sorting fvalues
+	* uniq	: unique Set maintained to ensure uniqueness in PQ
+	* map	: 2D Map with 'blocked' values from pMap
 	*
 	*/
 	priority_queue<AStarNode*, vector<AStarNode*>, CompareAStarNode> minPQ;
-	unordered_set<pair<int, int>, SimpleHash> uniqueOpen;
+	unordered_set<pair<int, int>, SimpleHash> uniq;
 	vector<vector<int>>  map(nMapWidth, vector<int>(nMapHeight));
 
 	//initial node
 	minPQ.push(nStart);
-	uniqueOpen.insert(make_pair(nStartX, nStartY));
+	uniq.insert(make_pair(nStartX, nStartY));
 
 	//assign map values
 	int counter = 0;
@@ -110,9 +110,15 @@ int FindPath(const int nStartX, const int nStartY,
 		current = minPQ.top();//Current node for evaluation
 
 		if (current->getxPos() == nTargetX && current->getyPos() == nTargetY){
-			currentBufferSize = current->getgValue(); //Possible due to cost always = 1
+			currentBufferSize = current->getgValue();
 			pOutBuffer = new int[currentBufferSize];
 			fillBuffer(current, pOutBuffer);
+			minPQ.swap(priority_queue<AStarNode*, vector<AStarNode*>, CompareAStarNode>());
+			uniq.clear();
+			map.clear();
+			delete child;
+			delete nTarget;
+			delete nStart;
 			return currentBufferSize;
 		}
 
@@ -121,12 +127,12 @@ int FindPath(const int nStartX, const int nStartY,
 		int yChild;
 		for (int i = 0; i < directions; i++)
 		{
-			if (current->getgValue() + 1 <= nOutBufferSize){										//Buffer limit
+			if (current->getgValue() + 1 <= nOutBufferSize){ //Buffer limit check
 				xChild = dirX[i] + current->getxPos();
 				yChild = dirY[i] + current->getyPos();
-				if (!(xChild < 0) && xChild < nMapWidth && !(yChild < 0) && yChild < nMapHeight){	//Within bounds
-					if (uniqueOpen.insert(make_pair(xChild, yChild)).second){						//Unique
-						if (map[xChild][yChild] != 0){ 												//blocked
+				if (!(xChild < 0) && xChild < nMapWidth && !(yChild < 0) && yChild < nMapHeight){ //Within bounds check
+					if (uniq.insert(make_pair(xChild, yChild)).second){ //Unique check
+						if (map[xChild][yChild] != 0){ //blocked check
 							child = new AStarNode(xChild, yChild);
 							child->setID(calculateID(xChild, yChild, nMapWidth));
 							child->setgValue(current->getgValue() + current->getCost());
@@ -141,8 +147,9 @@ int FindPath(const int nStartX, const int nStartY,
 		}
 		minPQ.pop();
 	}
-	minPQ = priority_queue<AStarNode*, vector<AStarNode*>, CompareAStarNode>();
-	uniqueOpen.clear();
+	minPQ.swap(priority_queue<AStarNode*, vector<AStarNode*>, CompareAStarNode>());
+	uniq.clear();
+	map.clear();
 	delete child;
 	delete nTarget;
 	delete nStart;
@@ -171,7 +178,7 @@ int main(int argc, char **argv)
 							1, 0, 1, 1, 1, 1, 1, 0, 1, 1,
 							1, 0, 0, 0, 0, 0, 1, 0, 1, 1,
 							1, 1, 1, 1, 1, 1, 1, 0, 1, 1 };
-	int pOutBuffer3[5];
+	int pOutBuffer3[100];
 
 	cout << FindPath(0, 0, 9, 3, pMap3, 10, 5, pOutBuffer3, 100) << endl;
 

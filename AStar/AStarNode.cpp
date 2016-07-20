@@ -24,4 +24,3 @@ void AStarNode::sethValue(int h) { this->h = h; }
 AStarNode* AStarNode::getParent() { return parent; }
 void AStarNode::setParent(AStarNode* parent) { this->parent = parent; }
 
-
